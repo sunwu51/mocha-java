@@ -1,0 +1,6 @@
+var add = function (a, b) {
+    throw error("bang!");
+    return a +b;
+};
+
+print(add(null, add(1, 2)));
