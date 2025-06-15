@@ -87,25 +87,21 @@ superCall
 expression
     : assignExpression;
 
+// 左值表达式（理论上只能是IDENT，xx.IDENT，xx[exp]）这里left直接用primary匹配。
+// 需要在实际代码解析的时候，判断left如果是unary并且不是IDENT的情况，抛个异常，避免1=2这种赋值。
 assignExpression
-    : andExpression                                             # AndInAssign
-    | leftValue op=ASSGIN right=assignExpression # Assign
+    : orExpression                                 # AndInAssign
+    | left=primary op=ASSGIN right=assignExpression # Assign
     ;
 
-// 左值表达式
-leftValue
-    : unary                                                                       # LeftUnary
-    | leftValue ('(' (expression ','?)* ')') '.' IDENTIFIER                       # PropertyAccessInFunCall
-    | leftValue '.' IDENTIFIER                                                    # PropertyAccess
-    | leftValue ('(' (expression ','?)* ')') '[' index=expression ']'                   # ArrayAccessInFunCall
-    | leftValue  '[' index=expression ']'                                               # ArrayAccess
+orExpression
+    : andExpression                                     # AndInOr
+    | left=orExpression op=OR  right=andExpression      # Or
     ;
-
 andExpression
     : eqExpression                                      # EqInAnd
-    | left=andExpression op=(AND|OR) right=eqExpression # And
+    | left=andExpression op=AND right=eqExpression       # And
     ;
-
 eqExpression
     : compExpression    # CompInEq
     | left=eqExpression op=(EQ|NEQ) right=compExpression # Eq
@@ -132,19 +128,17 @@ prefixExpression
     ;
 
 postfixExpression
-    : functionCallOrPointExpression                                             # FunCallInPost
-    | left=functionCallOrPointExpression  op=(INCREMENT|DECREMENT)              # Postfix
+    : primary                                             # FunCallInPost
+    | left=primary  op=(INCREMENT|DECREMENT)              # Postfix
     ;
 
-
-functionCallOrPointExpression
-    : left=functionCallOrPointExpression '(' (expression','? )* ')'                                  # FunCall
-    | left=functionCallOrPointExpression '.' IDENTIFIER  '(' (expression','? )* ')'                   # PointFunCall
-    | left=functionCallOrPointExpression '.' IDENTIFIER                                               # PointProperty
-    | left=functionCallOrPointExpression '[' index=expression ']''(' (expression','? )* ')'                 # IndexFunCall
-    | left=functionCallOrPointExpression '[' index=expression ']'                                           # IndexProperty
-    | unary                                                                                       # UnaryInFunCallOrPoint
-    ;
+// 单元或者递归的求属性、函数调用等
+primary
+    : unary                                             # UnaryExpr
+    | left=primary '[' expression ']'                   # IndexExpr
+    | left=primary '(' arguments ')'                    # CallExpr
+    | left=primary '.' IDENTIFIER                       # PropertyExpr
+;
 unary
     : NUMBER    #Number
     | STRING    #String
@@ -159,7 +153,6 @@ unary
     | function  #FunInUnary
     | new       #NewInUnary
 ;
-
 group: '(' expression ')';
 array
     :   '[' (expression (',' expression)* ','?)? ']'
@@ -170,6 +163,7 @@ pair: key=(STRING | IDENTIFIER) ':' value=expression ;
 function: FUNCTION '(' params ')' blockStatement;
 params: (IDENTIFIER (',' IDENTIFIER)*)?;
 new: NEW IDENTIFIER '(' (expression (',' expression)*)? ')';
+arguments: (expression (',' expression)* ','?)?;
 
 NULL: 'null';
 TRUE: 'true';

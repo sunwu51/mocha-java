@@ -15,7 +15,7 @@ public class Context {
 
     boolean returned;
 
-    Map<String, VarInfo> varInfoMap = new HashMap<>();
+    Map<String, Integer> varInfoMap = new HashMap<>();
 
 
     @AllArgsConstructor
@@ -24,15 +24,15 @@ public class Context {
         String type;
     }
 
-    public VarInfo get(String name) {
-        VarInfo res = null;
+    public Integer get(String name) {
+        Integer res = null;
         if ((res = varInfoMap.get(name)) != null || parent == null) {
             return res;
         }
         return parent.get(name);
     }
 
-    public void set(String name, int index, String type) {
-        varInfoMap.put(name, new VarInfo(index, type));
+    public void set(String name, int index) {
+        varInfoMap.put(name, index);
     }
 }

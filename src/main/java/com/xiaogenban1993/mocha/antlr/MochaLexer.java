@@ -1,4 +1,4 @@
-// Generated from C:/Users/sunwu/Desktop/code/test/src/main/resources/Mocha.g4 by ANTLR 4.13.2
+// Generated from C:/Users/sunwu/Desktop/code/mocha-java/src/main/resources/Mocha.g4 by ANTLR 4.13.2
 package com.xiaogenban1993.mocha.antlr;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;

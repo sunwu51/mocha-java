@@ -1,4 +1,4 @@
-// Generated from C:/Users/sunwu/Desktop/code/test/src/main/resources/Mocha.g4 by ANTLR 4.13.2
+// Generated from C:/Users/sunwu/Desktop/code/mocha-java/src/main/resources/Mocha.g4 by ANTLR 4.13.2
 package com.xiaogenban1993.mocha.antlr;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -179,35 +179,14 @@ public class MochaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitArrayAccess(MochaParser.ArrayAccessContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAndInOr(MochaParser.AndInOrContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitPropertyAccessInFunCall(MochaParser.PropertyAccessInFunCallContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitArrayAccessInFunCall(MochaParser.ArrayAccessInFunCallContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitLeftUnary(MochaParser.LeftUnaryContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitPropertyAccess(MochaParser.PropertyAccessContext ctx) { return visitChildren(ctx); }
+	@Override public T visitOr(MochaParser.OrContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -312,42 +291,28 @@ public class MochaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitFunCall(MochaParser.FunCallContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPropertyExpr(MochaParser.PropertyExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitPointFunCall(MochaParser.PointFunCallContext ctx) { return visitChildren(ctx); }
+	@Override public T visitCallExpr(MochaParser.CallExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitIndexFunCall(MochaParser.IndexFunCallContext ctx) { return visitChildren(ctx); }
+	@Override public T visitUnaryExpr(MochaParser.UnaryExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitPointProperty(MochaParser.PointPropertyContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitIndexProperty(MochaParser.IndexPropertyContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitUnaryInFunCallOrPoint(MochaParser.UnaryInFunCallOrPointContext ctx) { return visitChildren(ctx); }
+	@Override public T visitIndexExpr(MochaParser.IndexExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -481,4 +446,11 @@ public class MochaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitNew(MochaParser.NewContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitArguments(MochaParser.ArgumentsContext ctx) { return visitChildren(ctx); }
 }

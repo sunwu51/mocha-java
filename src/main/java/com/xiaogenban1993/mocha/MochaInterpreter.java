@@ -268,10 +268,12 @@ public class MochaInterpreter extends MochaBaseVisitor<Element> {
     public Element visitAssign(MochaParser.AssignContext ctx) {
         curRuleCtx = ctx;
         Element right = visit(ctx.right);
-        MochaParser.LeftValueContext leftCtx = ctx.leftValue();
+
+        MochaParser.PrimaryContext leftCtx = ctx.left;
+
         // 变量引用
-        if (leftCtx instanceof MochaParser.LeftUnaryContext) {
-            MochaParser.LeftUnaryContext variableRefCtx = (MochaParser.LeftUnaryContext)leftCtx;
+        if (leftCtx instanceof MochaParser.UnaryExprContext) {
+            MochaParser.UnaryExprContext variableRefCtx = (MochaParser.UnaryExprContext)leftCtx;
             if (variableRefCtx.unary() instanceof MochaParser.IdentContext) {
                 getMctx().set(((MochaParser.IdentContext)variableRefCtx.unary()).IDENTIFIER().getText(), right);
             } else {
@@ -280,55 +282,18 @@ public class MochaInterpreter extends MochaBaseVisitor<Element> {
             return right;
         }
 
-        // 点属性访问
-        if (leftCtx instanceof MochaParser.PropertyAccessContext) {
-            MochaParser.PropertyAccessContext propertyAccessCtx = (MochaParser.PropertyAccessContext)leftCtx;
-            Element _this = visit(propertyAccessCtx.leftValue());
-            _this.set(propertyAccessCtx.IDENTIFIER().getText(), right);
+        // 点属性访问 a.age = 1
+        if (leftCtx instanceof MochaParser.PropertyExprContext) {
+            MochaParser.PropertyExprContext propertyExprContext = (MochaParser.PropertyExprContext)leftCtx;
+            Element _this = visit(propertyExprContext.left);
+            _this.set(propertyExprContext.IDENTIFIER().getText(), right);
             return right;
         }
-        // []属性访问
-        if (leftCtx instanceof MochaParser.ArrayAccessContext) {
-            MochaParser.ArrayAccessContext arrayAccessCtx = (MochaParser.ArrayAccessContext)leftCtx;
-            Element _this = visit(arrayAccessCtx.leftValue());
-            Element index = visit(arrayAccessCtx.expression());
-            if (index instanceof StringElement) {
-                _this.set(index.toString(), right);
-            } else if (index instanceof NumberElement) {
-                double v = ((NumberElement) index).value;
-                int iv = (int) v;
-                if (v % 1 != 0) {
-                    throw new ErrorElement.MochaError("数组索引只能是整数", ctx);
-                }
-                if (_this instanceof ArrayElement) {
-                    ArrayElement arr = (ArrayElement) _this;
-                    arr.array.set(iv, right);
-                }
-            } else {
-                throw new ErrorElement.MochaError("not support", ctx);
-            }
-            return right;
-        }
-        if (leftCtx instanceof MochaParser.PropertyAccessInFunCallContext) {
-            MochaParser.PropertyAccessInFunCallContext pctx = (MochaParser.PropertyAccessInFunCallContext)leftCtx;
-            String code = pctx.leftValue().getText() + "(" + pctx.expression().stream().map(RuleContext::getText).collect(Collectors.joining(",")) + ")";
-            MochaLexer lexer = new MochaLexer(CharStreams.fromString(code));
-            lexer.setTokenFactory(new PositionAdjustingTokenFactory(pctx.getStart().getLine(), pctx.getStart().getCharPositionInLine()));
-            MochaParser parser = new MochaParser(new CommonTokenStream(lexer));
-            MochaParser.FunctionCallOrPointExpressionContext funcOrPointExpressionContext = parser.functionCallOrPointExpression();
-            Element _this = visit(funcOrPointExpressionContext);
-            _this.set(pctx.IDENTIFIER().getText(), right);
-            return right;
-        }
-        if (leftCtx instanceof MochaParser.ArrayAccessInFunCallContext) {
-            MochaParser.ArrayAccessInFunCallContext actx = (MochaParser.ArrayAccessInFunCallContext)leftCtx;
-            String code = actx.leftValue().getText() + "(" + actx.expression().stream().map(RuleContext::getText).collect(Collectors.joining(",")) + ")";
-            MochaLexer lexer = new MochaLexer(CharStreams.fromString(code));
-            lexer.setTokenFactory(new PositionAdjustingTokenFactory(actx.getStart().getLine(), actx.getStart().getCharPositionInLine()));
-            MochaParser parser = new MochaParser(new CommonTokenStream(lexer));
-            MochaParser.FunctionCallOrPointExpressionContext funcOrPointExpressionContext = parser.functionCallOrPointExpression();
-            Element _this = visit(funcOrPointExpressionContext);
-            Element index = visit(actx.index);
+        // []属性访问 arr[1] = 1
+        if (leftCtx instanceof MochaParser.IndexExprContext) {
+            MochaParser.IndexExprContext indexExprContext = (MochaParser.IndexExprContext)leftCtx;
+            Element _this = visit(indexExprContext.left);
+            Element index = visit(indexExprContext.expression());
             if (index instanceof StringElement) {
                 _this.set(index.toString(), right);
             } else if (index instanceof NumberElement) {
@@ -350,76 +315,22 @@ public class MochaInterpreter extends MochaBaseVisitor<Element> {
     }
 
     /**
-     * 赋值语句中的左值为属性访问的情况，如a.b.c
+     * ||操作符
      * @param ctx the parse tree
      * @return
      */
     @Override
-    public Element visitPropertyAccess(MochaParser.PropertyAccessContext ctx) {
+    public Element visitOr(MochaParser.OrContext ctx) {
         curRuleCtx = ctx;
-        Element _this = visit(ctx.leftValue());
-        String key = ctx.IDENTIFIER().getText();
-        return _this.get(key);
-    }
-
-    /**
-     * 赋值语句中左值为数组访问属性的情况，如a["name"]
-     * @param ctx the parse tree
-     * @return
-     */
-    @Override
-    public Element visitArrayAccess(MochaParser.ArrayAccessContext ctx) {
-        curRuleCtx = ctx;
-        Element _this = visit(ctx.leftValue());
-        Element index = visit(ctx.expression());
-        if (index instanceof StringElement) {
-            return _this.get(((StringElement)index).value);
+        Element left = visit(ctx.left).toBooleanElement();
+        if (left == Constants.TRUE ||
+                visit(ctx.right).toBooleanElement() == Constants.TRUE) {
+            return Constants.TRUE;
         }
-        if (index instanceof NumberElement) {
-            double v = ((NumberElement) index).value;
-            int iv = (int) v;
-            if (v % 1 != 0) {
-                throw new ErrorElement.MochaError("数组索引只能是整数", ctx);
-            }
-            if (_this instanceof ArrayElement) {
-                ArrayElement arr = (ArrayElement) _this;
-                return arr.array.get(iv);
-            }
-        }
-        throw new ErrorElement.MochaError("not support", ctx);
+        return Constants.FALSE;
     }
-
     /**
-     * 赋值语句中左值为函数调用结果的属性访问如add(a, b).name
-     * @param ctx the parse tree
-     * @return
-     */
-    @Override
-    public Element visitPropertyAccessInFunCall(MochaParser.PropertyAccessInFunCallContext ctx) {
-        curRuleCtx = ctx;
-        MochaLexer lexer = new MochaLexer(CharStreams.fromString(ctx.getText()));
-        lexer.setTokenFactory(new PositionAdjustingTokenFactory(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine()));
-        MochaParser parser = new MochaParser(new CommonTokenStream(lexer));
-        return visit(parser.functionCallOrPointExpression());
-    }
-
-    /**
-     * 赋值语句中左值为函数返回值的数组访问属性，add(a,b)["name"]
-     * @param ctx the parse tree
-     * @return
-     */
-    @Override
-    public Element visitArrayAccessInFunCall(MochaParser.ArrayAccessInFunCallContext ctx) {
-        curRuleCtx = ctx;
-        MochaLexer lexer = new MochaLexer(CharStreams.fromString(ctx.getText()));
-        lexer.setTokenFactory(new PositionAdjustingTokenFactory(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine()));
-        MochaParser parser = new MochaParser(new CommonTokenStream(lexer));
-        return visit(parser.functionCallOrPointExpression());
-    }
-
-
-    /**
-     * && || 操作符
+     * &&操作符
      * @param ctx the parse tree
      * @return
      */
@@ -427,21 +338,11 @@ public class MochaInterpreter extends MochaBaseVisitor<Element> {
     public Element visitAnd(MochaParser.AndContext ctx) {
         curRuleCtx = ctx;
         Element left = visit(ctx.left).toBooleanElement();
-
-        if (ctx.op.getType() == MochaParser.AND) {
-            if (left == Constants.FALSE ||
-                    visit(ctx.right).toBooleanElement() == Constants.FALSE) {
-                return Constants.FALSE;
-            }
-            return Constants.TRUE;
-        } else if (ctx.op.getType() == MochaParser.OR) {
-            if (left == Constants.TRUE ||
-                    visit(ctx.right).toBooleanElement() == Constants.TRUE) {
-                return Constants.TRUE;
-            }
+        if (left == Constants.FALSE ||
+                visit(ctx.right).toBooleanElement() == Constants.FALSE) {
             return Constants.FALSE;
         }
-        throw new ErrorElement.MochaError("not support", ctx);
+        return Constants.TRUE;
     }
 
     /**
@@ -462,7 +363,7 @@ public class MochaInterpreter extends MochaBaseVisitor<Element> {
         } else {
             ok = left == right;
         }
-        return ok ? Constants.TRUE : Constants.FALSE;
+        return ok && ctx.op.getType() == MochaParser.EQ ? Constants.TRUE : Constants.FALSE;
     }
 
     /**
@@ -620,63 +521,50 @@ public class MochaInterpreter extends MochaBaseVisitor<Element> {
     }
 
     /**
-     * 直接函数调用 如 func() 或 func()()等
+     * 函数调用 如 func() 或 func()()等
      * @param ctx the parse tree
      * @return
      */
     @Override
-    public Element visitFunCall(MochaParser.FunCallContext ctx) {
+    public Element visitCallExpr(MochaParser.CallExprContext ctx) {
         curRuleCtx = ctx;
         // 求出func，直接调用
         if (ctx.left.getText().equals("print")) {
-            System.out.println(ctx.expression().stream().map(it -> visit(it).toString()).collect(Collectors.joining(", ")));
+            System.out.println(ctx.arguments().expression().stream().map(it -> visit(it).toString()).collect(Collectors.joining(", ")));
             return Constants.NULL;
         }
         if (ctx.left.getText().equals("error")) {
-            return new ErrorElement(visit(ctx.expression().get(0)).toString(), new Stack<>());
+            return new ErrorElement(visit(ctx.arguments().expression().get(0)).toString(), new Stack<>());
         }
+        // super() 调用父类构造方法
         if (ctx.left.getText().equals("super")) {
             if (getMctx().get("super") == Constants.NULL) {
                 return Constants.NULL;
             }
 
             ProtoElement _super_ = (ProtoElement) getMctx().get("super");
-            functionCall((FunctionElement) _super_.map.get("constructor"), "constructor", ctx.expression().stream().map(this::visitExpression).collect(Collectors.toList()),
+            functionCall((FunctionElement) _super_.map.get("constructor"), "constructor", ctx.arguments().expression().stream().map(this::visitExpression).collect(Collectors.toList()),
                     getMctx().get("this"),
                     _super_.getPrototype() == null ? Constants.NULL : _super_.getPrototype(), ctx);
             return Constants.NULL;
         }
+
+        Element _this = Constants.NULL, _super = Constants.NULL;
+        if (ctx.left instanceof MochaParser.PropertyExprContext) {
+            _this = visit(((MochaParser.PropertyExprContext)ctx.left).left);
+        } else if (ctx.left instanceof MochaParser.IndexExprContext) {
+            _this = visit(((MochaParser.IndexExprContext)ctx.left).left);
+        }
+        if (_this.getPrototype() != null) {
+            _super = _this.getPrototype().getPrototype() == null ? Constants.NULL : _this.getPrototype().getPrototype();
+        }
+
+
         Element func = visit(ctx.left);
         if (func instanceof FunctionElement) {
             FunctionElement fun = (FunctionElement) func;
-            List<Element> args = ctx.expression().stream().map(this::visitExpression).collect(Collectors.toList());
-            return functionCall(fun, ctx.left.getText(), args, Constants.NULL, Constants.NULL, ctx);
-        }
-        throw new ErrorElement.MochaError("not a function", ctx);
-    }
-
-    /**
-     * 对象的方法调用最后用点操作符， obj.func() 或 func().func() 等
-     * @param ctx the parse tree
-     * @return
-     */
-    @Override
-    public Element visitPointFunCall(MochaParser.PointFunCallContext ctx) {
-        curRuleCtx = ctx;
-        // 求出_this和func，调用
-        Element _this = visit(ctx.left);
-        if (ctx.left.getText().equals("super")) {
-            _this = getMctx().get("this");
-        }
-        Element func = _this.get(ctx.IDENTIFIER().getText());
-        if (func instanceof FunctionElement) {
-            FunctionElement fun = (FunctionElement) func;
-            List<Element> args = ctx.expression().stream().map(this::visitExpression).collect(Collectors.toList());
-            Element _super = Constants.NULL;
-            if (_this.getPrototype() != null) {
-                _super = _this.getPrototype().getPrototype() == null ? Constants.NULL : _this.getPrototype().getPrototype();
-            }
-            return functionCall(fun, ctx.IDENTIFIER().getText(), args, _this, _super, ctx);
+            List<Element> args = ctx.arguments().expression().stream().map(this::visitExpression).collect(Collectors.toList());
+            return functionCall(fun, ctx.left.getText(), args, _this, _super, ctx);
         }
         throw new ErrorElement.MochaError("not a function", ctx);
     }
@@ -688,58 +576,11 @@ public class MochaInterpreter extends MochaBaseVisitor<Element> {
      * @return
      */
     @Override
-    public Element visitPointProperty(MochaParser.PointPropertyContext ctx) {
+    public Element visitPropertyExpr(MochaParser.PropertyExprContext ctx) {
         curRuleCtx = ctx;
         // 求出_this
         Element _this = visit(ctx.left);
         return _this.get(ctx.IDENTIFIER().getText());
-    }
-
-    /**
-     * 对象的方法调用最后用["xx"]，如a["func"]()
-     * @param ctx the parse tree
-     * @return
-     */
-    @Override
-    public Element visitIndexFunCall(MochaParser.IndexFunCallContext ctx) {
-        curRuleCtx = ctx;
-        // 求出_this和func，调用
-        Element _this = visit(ctx.left);
-        Element index = visit(ctx.index);
-        if (index instanceof StringElement) {
-            Element func =  _this.get(((StringElement)index).value);
-            if (func instanceof FunctionElement) {
-                FunctionElement fun = (FunctionElement) func;
-                List<Element> args = ctx.expression().stream().map(this::visitExpression).collect(Collectors.toList());
-                Element _super = Constants.NULL;
-                if (_this.getPrototype() != null) {
-                    _super = _this.getPrototype().getPrototype() == null ? Constants.NULL : _this.getPrototype().getPrototype();
-                }
-                return functionCall(fun, ((StringElement)index).value, args, _this, _super, ctx);
-            }
-            throw new ErrorElement.MochaError("not a function", ctx);
-        }
-        if (index instanceof NumberElement) {
-            double v = ((NumberElement) index).value;
-            int iv = (int) v;
-            if (v % 1 != 0) {
-                throw new ErrorElement.MochaError("数组索引只能是整数", ctx);
-            }
-            if (_this instanceof ArrayElement) {
-                ArrayElement arr = (ArrayElement) _this;
-                Element func = arr.array.get(iv);
-                if (func instanceof FunctionElement) {
-                    FunctionElement fun = (FunctionElement) func;
-                    List<Element> args = ctx.expression().stream().map(this::visitExpression).collect(Collectors.toList());
-                    Element _super = Constants.NULL;
-                    if (_this.getPrototype() != null) {
-                        _super = _this.getPrototype().getPrototype() == null ? Constants.NULL : _this.getPrototype().getPrototype();
-                    }
-                    return functionCall(fun, "<anonymous>", args, _this, _super, ctx);
-                }
-            }
-        }
-        throw new ErrorElement.MochaError("not support", ctx);
     }
 
 
@@ -749,11 +590,11 @@ public class MochaInterpreter extends MochaBaseVisitor<Element> {
      * @return
      */
     @Override
-    public Element visitIndexProperty(MochaParser.IndexPropertyContext ctx) {
+    public Element visitIndexExpr(MochaParser.IndexExprContext ctx) {
         curRuleCtx = ctx;
         // 求出_this
         Element _this = visit(ctx.left);
-        Element index = visit(ctx.index);
+        Element index = visit(ctx.expression());
         if (index instanceof StringElement) {
             return _this.get(((StringElement)index).value);
         }

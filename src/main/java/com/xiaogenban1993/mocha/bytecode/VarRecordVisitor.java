@@ -19,22 +19,22 @@ public class VarRecordVisitor extends MochaBaseVisitor<String> {
     Set<String> localVars = new HashSet<>();
     Set<String> outerVars = new HashSet<>();
 
-    @Override
-    public String visitAssign(MochaParser.AssignContext ctx) {
-
-        MochaParser.LeftValueContext leftCtx = ctx.leftValue();
-        // 变量引用
-        if (leftCtx instanceof MochaParser.LeftUnaryContext) {
-            MochaParser.LeftUnaryContext variableRefCtx = (MochaParser.LeftUnaryContext)leftCtx;
-            if (variableRefCtx.unary() instanceof MochaParser.IdentContext) {
-                String name = ((MochaParser.IdentContext)variableRefCtx.unary()).IDENTIFIER().getText();
-                localVars.add(name);
-            } else {
-                throw new ErrorElement.MochaError("not support syntax", ctx);
-            }
-        }
-        return null;
-    }
+//    @Override
+//    public String visitAssign(MochaParser.AssignContext ctx) {
+//
+//        MochaParser.PrimaryContext leftCtx = ctx.left;
+//        // 变量引用
+//        if (leftCtx instanceof MochaParser.UnaryExprContext) {
+//            MochaParser.UnaryExprContext variableRefCtx = (MochaParser.UnaryExprContext)leftCtx;
+//            if (variableRefCtx.unary() instanceof MochaParser.IdentContext) {
+//                String name = ((MochaParser.IdentContext)variableRefCtx.unary()).IDENTIFIER().getText();
+//                localVars.add(name);
+//            } else {
+//                throw new ErrorElement.MochaError("not support syntax", ctx);
+//            }
+//        }
+//        return null;
+//    }
 
     @Override
     public String visitIdent(MochaParser.IdentContext ctx) {
