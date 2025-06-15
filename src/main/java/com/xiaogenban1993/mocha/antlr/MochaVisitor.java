@@ -1,4 +1,4 @@
-// Generated from C:/Users/sunwu/Desktop/code/test/src/main/resources/Mocha.g4 by ANTLR 4.13.2
+// Generated from C:/Users/sunwu/Desktop/code/mocha-java/src/main/resources/Mocha.g4 by ANTLR 4.13.2
 package com.xiaogenban1993.mocha.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -151,40 +151,19 @@ public interface MochaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAssign(MochaParser.AssignContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code ArrayAccess}
-	 * labeled alternative in {@link MochaParser#leftValue}.
+	 * Visit a parse tree produced by the {@code AndInOr}
+	 * labeled alternative in {@link MochaParser#orExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitArrayAccess(MochaParser.ArrayAccessContext ctx);
+	T visitAndInOr(MochaParser.AndInOrContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code PropertyAccessInFunCall}
-	 * labeled alternative in {@link MochaParser#leftValue}.
+	 * Visit a parse tree produced by the {@code Or}
+	 * labeled alternative in {@link MochaParser#orExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPropertyAccessInFunCall(MochaParser.PropertyAccessInFunCallContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code ArrayAccessInFunCall}
-	 * labeled alternative in {@link MochaParser#leftValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArrayAccessInFunCall(MochaParser.ArrayAccessInFunCallContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code LeftUnary}
-	 * labeled alternative in {@link MochaParser#leftValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLeftUnary(MochaParser.LeftUnaryContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code PropertyAccess}
-	 * labeled alternative in {@link MochaParser#leftValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPropertyAccess(MochaParser.PropertyAccessContext ctx);
+	T visitOr(MochaParser.OrContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code And}
 	 * labeled alternative in {@link MochaParser#andExpression}.
@@ -284,47 +263,33 @@ public interface MochaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPostfix(MochaParser.PostfixContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code FunCall}
-	 * labeled alternative in {@link MochaParser#functionCallOrPointExpression}.
+	 * Visit a parse tree produced by the {@code PropertyExpr}
+	 * labeled alternative in {@link MochaParser#primary}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFunCall(MochaParser.FunCallContext ctx);
+	T visitPropertyExpr(MochaParser.PropertyExprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code PointFunCall}
-	 * labeled alternative in {@link MochaParser#functionCallOrPointExpression}.
+	 * Visit a parse tree produced by the {@code CallExpr}
+	 * labeled alternative in {@link MochaParser#primary}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPointFunCall(MochaParser.PointFunCallContext ctx);
+	T visitCallExpr(MochaParser.CallExprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code IndexFunCall}
-	 * labeled alternative in {@link MochaParser#functionCallOrPointExpression}.
+	 * Visit a parse tree produced by the {@code UnaryExpr}
+	 * labeled alternative in {@link MochaParser#primary}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitIndexFunCall(MochaParser.IndexFunCallContext ctx);
+	T visitUnaryExpr(MochaParser.UnaryExprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code PointProperty}
-	 * labeled alternative in {@link MochaParser#functionCallOrPointExpression}.
+	 * Visit a parse tree produced by the {@code IndexExpr}
+	 * labeled alternative in {@link MochaParser#primary}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPointProperty(MochaParser.PointPropertyContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code IndexProperty}
-	 * labeled alternative in {@link MochaParser#functionCallOrPointExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIndexProperty(MochaParser.IndexPropertyContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code UnaryInFunCallOrPoint}
-	 * labeled alternative in {@link MochaParser#functionCallOrPointExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitUnaryInFunCallOrPoint(MochaParser.UnaryInFunCallOrPointContext ctx);
+	T visitIndexExpr(MochaParser.IndexExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code Number}
 	 * labeled alternative in {@link MochaParser#unary}.
@@ -451,4 +416,10 @@ public interface MochaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNew(MochaParser.NewContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link MochaParser#arguments}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArguments(MochaParser.ArgumentsContext ctx);
 }

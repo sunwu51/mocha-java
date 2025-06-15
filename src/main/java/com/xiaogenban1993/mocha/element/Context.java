@@ -53,7 +53,9 @@ public class Context {
     public void setContinue() {
         this.forCtx.isContinue = true;
         if (forCtx.inFor) return;
-        parent.setContinue();
+        if (parent != null) {
+            parent.setContinue();
+        }
     }
 
     public void setReturnElement(Element v) {
@@ -61,7 +63,9 @@ public class Context {
         if (this.funCtx.name != null) {
             return;
         }
-        parent.setReturnElement(v);
+        if (parent != null) {
+            parent.setReturnElement(v);
+        }
     }
 
     public static class FunCtx {
